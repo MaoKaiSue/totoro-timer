@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>龍貓公車快線 - 終極還原版</title>
+    <style>
+        /* 定義圖檔中的精確顏色 */
+        :root {
+            --bus-bg: #FAD77B;       /* 主體暖黃色 */
+            --bus-border: #5C3A21;   /* 深棕色邊框 */
+            --stripe-color: #D98630; /* 深橘色斑紋/耳朵 */
+            --progress-teal: #1ABC9C;/* 進度條藍綠色 */
+            --btn-pink: #F09090;     /* 出發按鈕粉色 */
+            --text-orange: #E69A49;  /* 時間文字橘金色 */
+            --preset-brown: #A68568; /* 預設按鈕棕色 */
+        }
+
+        html, body {
+            margin: 0; padding: 0; width: 100%; height: 100%;
+        }
+
+        body {
+            display: flex; justify-content: center; align-items: center;
+            font-family: "Microsoft JhengHei", "Arial Rounded MT Bold", sans-serif;
+            /* 維持大樹背景 */
+            background-image: url('Gemini_Generated_Image_9p0f5c9p0f5c9p0f.jpg');
+            background-size: cover; background-position: center; background-repeat: no-repeat; background-attachment: fixed;
+            overflow: hidden; position: relative;
+        }
+
+        /* 背景遮罩讓介面更突出 */
+        body::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.1); z-index: 0;
+        }
+
+        /* --- 貓公車主體 --- */
+        .catbus-box {
+            background-color: var(--bus-bg);
+            width: 400px;
+            padding: 30px 25px 50px 25px; /* 底部留空間給貓掌 */
+            border-radius: 45px;
+            border: 6px solid var(--bus-border);
+            box-shadow: 0 15px 0px rgba(0,0,0,0.15);
+            position: relative;
+            text-align: center;
+            z-index: 10;
+        }
+
+        /* 全螢幕按鈕 (維持功能) */
+        .fullscreen-btn {
+            position: absolute; top: 15px; right: 15px;
+            background: none; border: 2px solid var(--bus-border); border-radius: 8px;
+            color: var(--bus-border); font-size: 0.7rem; font-weight: bold;
+            padding: 2px 6px; cursor: pointer; z-index: 20; opacity: 0.6; transition: 0.2s;
+        }
+        .fullscreen-btn:hover { opacity: 1; }
+
+        /* --- 特徵還原：貓耳朵 --- */
+        .ear {
+            position: absolute; top: -60px;
+            width: 0; height: 0;
+            border-left: 45px solid transparent;
+            border-right: 45px solid transparent;
+            border-bottom: 70px solid var(--stripe-color);
+            z-index: 11; /* 蓋在邊框上 */
+        }
+        .ear.left { left: 20px; transform: rotate(-15deg); }
+        .ear.right { right: 20px; transform: rotate(15deg); }
+        /* 耳朵內部紋理 */
+        .ear::after {
+            content: ''; position: absolute;
+            top: 15px; left: -25px;
+            width: 0; height: 0;
+            border-left: 25px solid transparent;
+            border-right: 25px solid transparent;
+            border-bottom: 45px solid var(--bus-border);
+            opacity: 0.3;
+        }
+
+        /* --- 特徵還原：三角形斑紋 --- */
+        .bus-stripe {
+            position: absolute;
+            width: 0; height: 0;
+            border-top: 15px solid transparent;
+            border-bottom: 15px solid transparent;
+            border-left: 30px solid var(--stripe-color);
+        }
+        .s-left { left: -6px; }
+        .s-right { right: -6px; transform: rotate(180deg); }
+        .t1 { top: 90px; } .t2 { top: 150px; } .t3 { top: 300px; }
+
+        /* 鬍鬚 */
+        .whisker {
+            position: absolute; height: 4px; background: var(--bus-border); border-radius: 2px;
+        }
+        .w-l { left: 20px; width: 35px; } .w-r { right: 20px; width: 35px; }
+
+        /* --- 特徵還原：底部貓掌 --- */
+        .paw {
+            position: absolute; bottom: -20px;
+            width: 50px; height: 40px;
+            background: var(--bus-bg);
+            border: 6px solid var(--bus-border);
+            border-top: none;
+            border-radius: 0 0 25px 25px;
+        }
+        .paw.left { left: 30px; transform: rotate(10deg); }
+        .paw.right { right: 30px; transform: rotate(-10deg); }
+
+        /* 標題 */
+        .header-title {
+            color: var(--bus-border); font-weight: bold; font-size: 1.3rem; margin-bottom: 15px; letter-spacing: 2px;
+        }
+
+        /* --- 特徵還原：藍綠色進度條 --- */
+        .progress-container {
+            width: 95%; height: 18px; background: #C4E4D6; /* 淺綠底 */
+            border-radius: 20px; margin: 0 auto 25px;
+            border: 4px solid var(--bus-border); overflow: hidden;
+        }
+        #progress-bar { width: 100%; height: 100%; background: var(--progress-teal); transition: width 1s linear; }
+
+        /* --- 特徵還原：橘金色時間數字 --- */
+        .timer-display {
+            font-size: 5.5rem; font-weight: 900;
+            color: var(--text-orange);
+            /* 文字描邊效果 */
+            -webkit-text-stroke: 3px var(--bus-border);
+            margin: 5px 0 15px; letter-spacing: 2px;
+            font-family: 'Arial Black', sans-serif;
+        }
+
+        /* --- 特徵還原：棕色小熊/貓頭預設按鈕 --- */
+        .preset-container {
+            display: flex; justify-content: center; gap: 12px; margin-bottom: 25px;
+        }
+        .preset-btn {
+            background: var(--preset-brown); color: var(--bus-bg);
+            width: 50px; height: 40px;
+            display: flex; justify-content: center; align-items: center;
+            border-radius: 12px 12px 20px 20px;
+            font-size: 0.9rem; font-weight: bold;
+            border: 3px solid var(--bus-border);
+            cursor: pointer; position: relative; transition: 0.2s;
+        }
+        /* 小耳朵 */
+        .preset-btn::before, .preset-btn::after {
+            content: ''; position: absolute; top: -8px;
+            width: 14px; height: 14px;
+            background: var(--preset-brown);
+            border: 3px solid var(--bus-border); border-bottom: none;
+            border-radius: 50% 50% 0 0;
+        }
+        .preset-btn::before { left: 3px; } .preset-btn::after { right: 3px; }
+        .preset-btn:hover { transform: translateY(-3px); }
+
+        /* 輸入框 */
+        .input-group {
+            display: flex; justify-content: center; align-items: center; gap: 10px; margin-bottom: 30px;
+        }
+        .time-input {
+            width: 80px; padding: 8px; border-radius: 12px;
+            border: 4px solid var(--bus-border); font-size: 1.4rem; text-align: center; font-weight: bold;
+            background: white; outline: none; color: var(--bus-border);
+        }
+
+        /* --- 底部按鈕區 --- */
+        .btn-row {
+            display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; padding: 0 10px;
+        }
+
+        /* --- 特徵還原：粉紅貓臉出發按鈕 --- */
+        .start-face {
+            background-color: var(--btn-pink);
+            flex: 1.8; height: 70px;
+            border-radius: 20px; border: 4px solid var(--bus-border);
+            cursor: pointer; font-weight: bold; font-size: 1.3rem; color: var(--bus-border);
+            position: relative; display: flex; justify-content: center; align-items: center;
+            box-shadow: 0 6px 0 rgba(92, 58, 33, 0.3);
+        }
+        .start-face:active { box-shadow: 0 2px 0 rgba(92, 58, 33, 0.3); transform: translateY(4px); }
+        /* 貓眼睛 */
+        .start-face::before, .start-face::after {
+            content: ''; position: absolute; top: 15px; width: 12px; height: 18px;
+            background: var(--bus-border); border-radius: 50%;
+        }
+        .start-face::before { left: 30px; } .start-face::after { right: 30px; }
+        /* 貓嘴巴 (文字下方) */
+        .start-face span { z-index: 2; }
+        .mouth-shape {
+             position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);
+             width: 100px; height: 25px;
+             border-bottom: 4px solid var(--bus-border);
+             border-radius: 0 0 50% 50%;
+             background: rgba(255,255,255,0.2); /* 牙齒底色 */
+        }
+
+        /* --- 特徵還原：白色吉卜力重設按鈕 --- */
+        .reset-container {
+            flex: 1.2; position: relative;
+        }
+        /* 上方日文標題 */
+        .reset-label {
+            position: absolute; top: -20px; left: 50%; transform: translateX(-50%);
+            font-size: 0.8rem; font-weight: bold; color: var(--bus-border);
+            white-space: nowrap;
+        }
+        .reset-btn {
+            background-color: white; width: 100%; height: 50px;
+            border-radius: 15px; border: 4px solid var(--bus-border);
+            cursor: pointer; font-weight: bold; color: var(--bus-border); font-size: 1.1rem;
+            box-shadow: 0 6px 0 rgba(92, 58, 33, 0.3);
+        }
+        .reset-btn:active { box-shadow: 0 2px 0 rgba(92, 58, 33, 0.3); transform: translateY(4px); }
+
+
+        /* 提醒彈窗 */
+        #alert-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); z-index: 9999;
+            flex-direction: column; justify-content: center; align-items: center;
+        }
+        #alert-overlay.show { display: flex; animation: fadeIn 0.3s; }
+        .totoro-gif { max-width: 85%; max-height: 50vh; border: 8px solid white; border-radius: 30px; margin-bottom: 25px; object-fit: contain; }
+        .alert-txt { color: white; font-size: 1.5rem; font-weight: bold; margin-bottom: 25px; text-align: center; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+</head>
+<body>
+
+    <div class="catbus-box">
+        <button class="fullscreen-btn" onclick="toggleFullScreen()">全螢幕</button>
+
+        <!-- 貓公車特徵 -->
+        <div class="ear left"></div><div class="ear right"></div>
+        <div class="bus-stripe s-left t1"></div><div class="bus-stripe s-left t2"></div><div class="bus-stripe s-left t3"></div>
+        <div class="bus-stripe s-right t1"></div><div class="bus-stripe s-right t2"></div><div class="bus-stripe s-right t3"></div>
+        <div class="whisker w-l" style="top:150px; transform:rotate(10deg);"></div>
+        <div class="whisker w-l" style="top:180px;"></div>
+        <div class="whisker w-l" style="top:210px; transform:rotate(-10deg);"></div>
+        <div class="whisker w-r" style="top:150px; transform:rotate(-10deg);"></div>
+        <div class="whisker w-r" style="top:180px;"></div>
+        <div class="whisker w-r" style="top:210px; transform:rotate(10deg);"></div>
+        <!-- 底部貓掌 -->
+        <div class="paw left"></div><div class="paw right"></div>
+
+        <div class="header-title">龍貓公車快線</div>
+
+        <!-- 藍綠色進度條 -->
+        <div class="progress-container">
+            <div id="progress-bar"></div>
+        </div>
+
+        <!-- 橘金色時間顯示 -->
+        <div class="timer-display" id="display">25:00</div>
+
+        <!-- 棕色小貓頭預設按鈕 -->
+        <div class="preset-container">
+            <div class="preset-btn" onclick="quickSet(1)">1m</div>
+            <div class="preset-btn" onclick="quickSet(5)">5m</div>
+            <div class="preset-btn" onclick="quickSet(10)">10m</div>
+            <div class="preset-btn" onclick="quickSet(15)">15m</div>
+            <div class="preset-btn" onclick="quickSet(25)">25m</div>
+        </div>
+
+        <div class="input-group">
+            <input type="number" id="minInput" class="time-input" value="25" min="0">
+            <div style="font-size: 24px; font-weight: bold; color: var(--bus-border);">:</div>
+            <input type="number" id="secInput" class="time-input" value="00" min="0" max="59">
+        </div>
+
+        <div class="btn-row">
+            <!-- 粉紅貓臉出發按鈕 -->
+            <button class="start-face" id="startBtn" onclick="toggleTimer()">
+                <span id="btnText">出發！</span>
+                <div class="mouth-shape"></div>
+            </button>
+            
+            <!-- 白色吉卜力重設按鈕 -->
+            <div class="reset-container">
+                <div class="reset-label">ジブリパーク</div>
+                <button class="reset-btn" onclick="resetAll()">重設</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 提醒彈窗 -->
+    <div id="alert-overlay">
+        <img src="totoro_call.gif" class="totoro-gif" id="finishGif" alt="時間到囉！">
+        <div class="alert-txt">嗶嗶嗶！龍貓打電話找你！</div>
+        <button class="reset-btn" onclick="closeAlert()" style="flex:none; width:150px;">接聽電話</button>
+    </div>
+
+    <audio id="alarm" loop>
+        <source src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" type="audio/ogg">
+    </audio>
+
+    <script>
+        let timeLeft = 0;
+        let totalTime = 0;
+        let timer = null;
+        let isPaused = false;
+
+        const display = document.getElementById('display');
+        const progressBar = document.getElementById('progress-bar');
+        const startBtn = document.getElementById('startBtn');
+        const btnText = document.getElementById('btnText');
+        const alertOverlay = document.getElementById('alert-overlay');
+        const finishGif = document.getElementById('finishGif');
+        const alarm = document.getElementById('alarm');
+
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => console.error(err));
+            } else {
+                if (document.exitFullscreen) document.exitFullscreen();
+            }
+        }
+
+        function quickSet(m) {
+            resetAll();
+            document.getElementById('minInput').value = m;
+            document.getElementById('secInput').value = 0;
+            timeLeft = m * 60; totalTime = timeLeft;
+            updateView();
+        }
+
+        function toggleTimer() {
+            if (timer) {
+                clearInterval(timer); timer = null;
+                btnText.innerText = '繼續'; isPaused = true;
+            } else {
+                if (!isPaused && timeLeft <= 0) {
+                    const m = parseInt(document.getElementById('minInput').value) || 0;
+                    const s = parseInt(document.getElementById('secInput').value) || 0;
+                    timeLeft = m * 60 + s; totalTime = timeLeft;
+                }
+                if (timeLeft <= 0) return;
+
+                btnText.innerText = '暫停'; isPaused = false;
+                timer = setInterval(() => {
+                    timeLeft--; updateView();
+                    if (timeLeft <= 0) {
+                        clearInterval(timer); timer = null;
+                        btnText.innerText = '出發！';
+                        alertOverlay.classList.add('show');
+                        const currentSrc = finishGif.src; finishGif.src = ""; finishGif.src = currentSrc;
+                        alarm.play().catch(e => console.log("音效需互動"));
+                    }
+                }, 1000);
+            }
+        }
+
+        function updateView() {
+            const m = Math.floor(timeLeft / 60); const s = timeLeft % 60;
+            display.innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+            const p = totalTime > 0 ? (timeLeft / totalTime) * 100 : 0;
+            progressBar.style.width = p + '%';
+        }
+
+        function resetAll() {
+            clearInterval(timer); timer = null; timeLeft = 0; isPaused = false;
+            btnText.innerText = '出發！'; progressBar.style.width = '100%';
+            const m = parseInt(document.getElementById('minInput').value) || 0;
+            const s = parseInt(document.getElementById('secInput').value) || 0;
+            display.innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+        }
+
+        function closeAlert() {
+            alertOverlay.classList.remove('show');
+            alarm.pause(); alarm.currentTime = 0;
+        }
+    </script>
+</body>
+</html>
